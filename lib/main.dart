@@ -1,19 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   HydratedBlocOverrides.runZoned(
-    () => runApp(
-      App(),
-    ),
+    () => runApp(App()),
     createStorage: () async {
       WidgetsFlutterBinding.ensureInitialized();
       return HydratedStorage.build(
-        storageDirectory: await getTemporaryDirectory(),
+        storageDirectory: kIsWeb
+            ? HydratedStorage.webStorageDirectory
+            : await getTemporaryDirectory(),
       );
     },
   );
@@ -23,7 +23,6 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightnessCubit = BrightnessCubit();
-
     return BlocProvider.value(
       value: brightnessCubit,
       child: AppView(),
@@ -38,9 +37,6 @@ class AppView extends StatelessWidget {
       builder: (context, brightness) {
         return MaterialApp(
           theme: ThemeData(brightness: brightness),
-          // localizationsDelegates: context.localizationDelegates,
-          // supportedLocales: context.supportedLocales,
-          // locale: context.locale,
           home: CounterPage(),
         );
       },
